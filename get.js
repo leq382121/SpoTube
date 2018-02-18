@@ -31,7 +31,9 @@ var YoutubeTitleContainer = [];
 
 fs.mkdir("downloaded");
 fs.mkdir("mp3");
+fs.unlink("music.txt");
 fs.createFile("music.txt");
+
 
 
 if (nick == null || pass == null ){
