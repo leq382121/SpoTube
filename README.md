@@ -20,7 +20,6 @@ Clone/Download the files from repository to your specified folder and run comman
 $ npm install
 ```
 
-**After downloading, make sure to create 2 folders manualy, name them "downloaded" and "mp3"**
 After that, open up info.json file, enter your facebook email and password, paste the link you wish to download and run the app to download videos.
 
 ```sh

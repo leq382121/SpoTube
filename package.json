@@ -39,7 +39,7 @@
     "split2": "^2.0.1",
     "video-converter": "git+https://github.com/leq382121/video-converter.git#master",
     "youtube-search": "^1.0.10",
-    "ytdl-core": "^0.18.2"
+    "ytdl-core": "git+https://github.com/fent/node-ytdl-core.git#master"
   },
   "devDependencies": {
     "async": "~2.1.4",

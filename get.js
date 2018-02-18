@@ -29,6 +29,11 @@ var returnedArrayOfNames;
 var YoutubeLinksContainer = [];
 var YoutubeTitleContainer = [];
 
+fs.mkdir("downloaded");
+fs.mkdir("mp3");
+fs.createFile("music.txt");
+
+
 if (nick == null || pass == null ){
   console.log(" email or password was not defined.");
   console.log(" FYI: node script.js youremail yourpass")
@@ -103,6 +108,8 @@ if (nick == null || pass == null ){
           var link = res[0].link.toString('utf8');
           var name = res[0].title.toString('utf8');
 
+
+
           YoutubeLinksContainer.push(link);
           YoutubeTitleContainer.push(name.replace(/\W/g,' '));
 
@@ -113,8 +120,17 @@ if (nick == null || pass == null ){
             for (var v = 0; v < YoutubeLinksContainer.length; v++){
               console.log("# Reading video link:", YoutubeLinksContainer[v]);
               console.log("# Reading video title:", YoutubeTitleContainer[v]);
+
+              fs.appendFile('music.txt', YoutubeLinksContainer[v] + " - " + YoutubeTitleContainer[v] + "\r\n", function (err) {
+                if (err) {
+                  // append failed
+                } else {
+                  // done
+                }
+              });
+
               ytdl(YoutubeLinksContainer[v])
-              .on('error', (err) => console.log("One video which is not available in your country or has age restrictions", YoutubeTitleContainer[v]))
+              .on('error', (err) => console.log("One video which is not available in your country or has age restrictions"))
               .pipe(fs.createWriteStream("./downloaded/" + YoutubeTitleContainer[v] + ".mp4"));
             }
           }
