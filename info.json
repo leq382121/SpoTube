@@ -1,5 +1,6 @@
 {
     "fbnick":"",
     "fbpass":"",
-    "spotifyLink":"https://open.spotify.com/user/kolibrimusic/playlist/0Npd09YvUmacwKLKJ4LsIT"
+    "spotifyLink":"https://open.spotify.com/user/kolibrimusic/playlist/0Npd09YvUmacwKLKJ4LsIT",
+    "wordsToSkip":["album", "Album", "cover", "acoustic", "VEVO"]
 }

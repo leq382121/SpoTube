@@ -16,6 +16,7 @@
     "electron",
     "Youtube",
     "Liutauras",
+    "leq382121",
     "SpoTube"
   ],
   "description": "A high-level browser automation library combined with youtube playlist downloader using youtube and to mp3 converter",

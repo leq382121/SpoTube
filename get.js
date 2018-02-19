@@ -1,5 +1,5 @@
 const Nightmare = require('nightmare');
-const nightmare = Nightmare({ show: true })
+const nightmare = Nightmare({ show: false })
 const search = require('youtube-search');
 const ytdl = require('ytdl-core');
 const $ = require("jquery");
@@ -16,6 +16,7 @@ var YTAPIopions = {
 const nick = info.fbnick;
 const pass = info.fbpass;
 const spotifyLink = info.spotifyLink;
+const wordsToSkip = info.wordsToSkip;
 
 // const nick = process.argv[2];
 // const pass = process.argv[3];
@@ -99,8 +100,6 @@ if (nick == null || pass == null ){
     for (var i = 0; i < returnedArrayOfNames.length; i++){
       //using song names to get links
       search(returnedArrayOfNames[i], YTAPIopions, function(err, res) {
-        //if(err) return console.log(err);
-
 
         if (typeof(res) === "undefined" || res[0].kind == "youtube#playlist"){
           console.log("# !! Wow, found a bad link! But don't worry, just skipping...");
@@ -110,7 +109,13 @@ if (nick == null || pass == null ){
           var link = res[0].link.toString('utf8');
           var name = res[0].title.toString('utf8');
 
-
+          for(var badWordsCounter = 0; badWordsCounter < wordsToSkip.length; badWordsCounter++) {
+            if (name.indexOf(wordsToSkip[badWordsCounter]) !== -1){
+              //aka If index of bad word found
+              console.log("Skipping ", res[0].title ,"Word - ", wordsToSkip[badWordsCounter]);
+              return playlistCounter++
+            }
+          }
 
           YoutubeLinksContainer.push(link);
           YoutubeTitleContainer.push(name.replace(/\W/g,' '));
@@ -124,10 +129,8 @@ if (nick == null || pass == null ){
               console.log("# Reading video title:", YoutubeTitleContainer[v]);
 
               fs.appendFile('music.txt', YoutubeLinksContainer[v] + " - " + YoutubeTitleContainer[v] + "\r\n", function (err) {
-                if (err) {
-                  // append failed
-                } else {
-                  // done
+                if (err) { console.log(err) } else {
+                  console.log("All songs with links an be found in music.txt file");
                 }
               });
 
@@ -136,7 +139,6 @@ if (nick == null || pass == null ){
               .pipe(fs.createWriteStream("./downloaded/" + YoutubeTitleContainer[v] + ".mp4"));
             }
           }
-        
       }});
     }
   }
