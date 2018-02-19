@@ -20,7 +20,7 @@ Clone/Download the files from repository to your specified folder and run comman
 $ npm install
 ```
 
-After that, open up info.json file, enter your facebook email and password, paste the link you wish to download and run the app to download videos. Additionaly you can specify the words which possible findings coudl contain to increase the accuracy of results.
+After that, open up info.json file, enter your facebook email and password, paste the link you wish to download and run the app to download videos. Additionaly you can specify the words which will filter out videos containing them in order to increase the accuracy of results and save data/time.
 
 ```sh
 $ node get.js
