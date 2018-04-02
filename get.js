@@ -1,5 +1,5 @@
 const Nightmare = require('nightmare');
-const nightmare = Nightmare({ show: false })
+const nightmare = Nightmare({ show: true })
 const search = require('youtube-search');
 const ytdl = require('ytdl-core');
 const $ = require("jquery");
@@ -10,6 +10,12 @@ var YTAPIopions = {
   maxResults: 1,
   key: 'AIzaSyDa1geAukHGpQiOz2RJbtZ_V1ldmmvwLbw'
 };
+
+/**
+ * 
+ * Some extra youtube API keys if you get stuck.
+ */
+
 //AIzaSyDOGmf4tOOBF0Ul7WgwA4edFWa_1OqKRnk
 //AIzaSyDa1geAukHGpQiOz2RJbtZ_V1ldmmvwLbw
 
@@ -102,7 +108,7 @@ if (nick == null || pass == null ){
       search(returnedArrayOfNames[i], YTAPIopions, function(err, res) {
 
         if (typeof(res) === "undefined" || res[0].kind == "youtube#playlist"){
-          console.log("# !! Wow, found a bad link! But don't worry, just skipping...");
+          console.log("# Found a bad link for one song. Just skipping...");
           return playlistCounter++
         } else {
 
@@ -122,7 +128,8 @@ if (nick == null || pass == null ){
 
           //getting length of links array and fulfilling the upcoming if statement to download videos
           if (YoutubeLinksContainer.length == (i - playlistCounter)) {
-            console.log("# Youtube links is stored into memory");
+            console.log("# Youtube links are stored into memory");
+            console.log("# All songs with links can be found in music.txt file");
 
             for (var v = 0; v < YoutubeLinksContainer.length; v++){
               console.log("# Reading video link:", YoutubeLinksContainer[v]);
@@ -130,12 +137,11 @@ if (nick == null || pass == null ){
 
               fs.appendFile('music.txt', YoutubeLinksContainer[v] + " - " + YoutubeTitleContainer[v] + "\r\n", function (err) {
                 if (err) { console.log(err) } else {
-                  console.log("All songs with links an be found in music.txt file");
                 }
               });
 
               ytdl(YoutubeLinksContainer[v])
-              .on('error', (err) => console.log("One video which is not available in your country or has age restrictions"))
+              .on('error', (err) => console.log("# Skipping one video which is not available in your country or has age restrictions."))
               .pipe(fs.createWriteStream("./downloaded/" + YoutubeTitleContainer[v] + ".mp4"));
             }
           }

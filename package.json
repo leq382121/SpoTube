@@ -24,7 +24,7 @@
     "debug": "^2.2.0",
     "deep-defaults": "^1.0.3",
     "defaults": "^1.0.2",
-    "electron": "1.7.6",
+    "electron": "^1.8.2",
     "enqueue": "^1.0.2",
     "fluent-ffmpeg": "^2.1.2",
     "fs-extra": "^4.0.2",

@@ -33,3 +33,10 @@ $ node c2mp3.js
 ```
 *success?*
 
+# Additional note
+
+Sometimes mac users experience problems with conversion to mp3. It is due to incorrect writting/reading permissions in the project root folder mac sets by default. Use this command in the project root folder to fix it:
+
+```sh
+$ chmod -R u+x .
+```
