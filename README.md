@@ -10,7 +10,7 @@ For SpoTube to download, you will need:
 
   - NodeJS
   (Download link: https://nodejs.org/en/ )
-  - Facebook account
+  - Facebook account (if you are afraid, you can use fake one. Does not matter)
   
 # Usage
   
