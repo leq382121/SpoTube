@@ -19,15 +19,15 @@ var YTAPIopions = {
 //AIzaSyDOGmf4tOOBF0Ul7WgwA4edFWa_1OqKRnk
 //AIzaSyDa1geAukHGpQiOz2RJbtZ_V1ldmmvwLbw
 
-const nick = info.fbnick;
-const pass = info.fbpass;
+// const nick = info.fbnick;
+// const pass = info.fbpass;
 const spotifyLink = info.spotifyLink;
 const wordsToSkip = info.wordsToSkip;
 
 // const nick = process.argv[2];
 // const pass = process.argv[3];
 // const spotifyLink = process.argv[4];
-//const spotifyLink = 'https://open.spotify.com/user/1163383364/playlist/0QbpiafjotJ9i3CDiddPvy';
+// const spotifyLink = 'https://open.spotify.com/user/1163383364/playlist/0QbpiafjotJ9i3CDiddPvy';
 
 var getVideoLinks = false;
 var dlVideos = false;
@@ -43,24 +43,41 @@ fs.createFile("music.txt");
 
 
 
-if (nick == null || pass == null ){
-  console.log(" email or password was not defined.");
-  console.log(" FYI: node script.js youremail yourpass")
-} else { nightmare
+// if (nick == null || pass == null ){
+//   console.log(" email or password was not defined.");
+//   console.log(" FYI: node script.js youremail yourpass")
+// } else {
+nightmare
 .goto(spotifyLink)
-.click('#has-account')
-.wait(3000)
-.click('.btn-facebook')
-.wait('#email')
-.type('#email', nick)
-.type('#pass', pass)
-.click('#loginbutton')
+// .click('#has-account')
+// .wait(3000)
+// .click('.btn-facebook')
+// .wait('#email')
+// .type('#email', nick)
+// .type('#pass', pass)
+// .click('#loginbutton')
 .wait('.tracklist-name')
 .inject('js', 'jquery-3.2.1.min.js')
+// .evaluate(function(){
+//     $('.dialog').remove();
+// })
+// Repeating scroll few times. Not the most beautiful solution :)
 .evaluate(function(){
-    $('.dialog').remove();
+  $(document).scrollTop($(document).height());
 })
-// Repeating scroll few times
+.wait(1500)
+.evaluate(function(){
+  $(document).scrollTop($(document).height());
+})
+.wait(1500)
+.evaluate(function(){
+  $(document).scrollTop($(document).height());
+})
+.wait(1500)
+.evaluate(function(){
+  $(document).scrollTop($(document).height());
+})
+.wait(1500)
 .evaluate(function(){
   $(document).scrollTop($(document).height());
 })
@@ -87,7 +104,7 @@ if (nick == null || pass == null ){
     $( ".track-name-wrapper" ).each(function( i ) {
         namesArray.push( 
         $(this).children(".tracklist-name").text() + " - " 
-        + $(this).children(".artists-album").text());
+        + $(this).find(".tracklist-row__artist-name-link").text());
     });
 
   return namesArray 
@@ -150,8 +167,9 @@ if (nick == null || pass == null ){
   }
   return (YoutubeLinksContainer.length == (i - playlistCounter))
 }).then(function(){
+  console.log('Work is done. check downloaded folder. For conversion to mp3, use $ node c2mp3.js')
   return nightmare.end(); 
   });
-}
+// }
 
 

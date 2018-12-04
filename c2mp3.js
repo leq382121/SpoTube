@@ -34,8 +34,7 @@ fs.readdirSync(videoFolder).forEach(file => {
 })
 
 // convert mp4 to mp3 
-
-for (var i = 0; i <filesArray.length; i++){
+for (var i = 0; i < filesArray.length; i++){
 
     if (String(filesArray[i]) === ".DS_Store") {
         fs.unlink("./mp3/" + filesArray[i], function(err){console.log("DS_Store file is found and deleted.")});
@@ -44,7 +43,7 @@ for (var i = 0; i <filesArray.length; i++){
         converter.convert(videoFolder+filesArray[i], mp3Folder+songName+".mp3", function(err) {
             if (err) throw err;
             convSongCounter++
-            console.log(convSongCounter, "song converted..");
+            console.log('# ' + convSongCounter + ' song converted.');
         });
     }
 
