@@ -10,7 +10,6 @@ For SpoTube to download, you will need:
 
   - NodeJS
   (Download link: https://nodejs.org/en/ )
-  - Facebook account
   
 # Usage
   
@@ -20,7 +19,7 @@ Clone/Download the files from repository to your specified folder and run comman
 $ npm install
 ```
 
-After that, open up info.json file, enter your facebook email and password, paste the link you wish to download and run the app to download videos. Additionaly you can specify the words which will filter out videos containing them in order to increase the accuracy of results and save data/time.
+After that, open up info.json file, paste the link you wish to download and run the app to download videos. Additionaly you can specify the words which will filter out videos containing them in order to increase the accuracy of results and save data/time.
 
 ```sh
 $ node get.js
@@ -40,3 +39,5 @@ Sometimes mac users experience problems with conversion to mp3. It is due to inc
 ```sh
 $ chmod -R u+x .
 ```
+
+Also, sometimes downloaded videos takes 0 bytes of size. It's a corupted video file. You can either delete it manualy of run c2mp3 and script will remove them by itself.
