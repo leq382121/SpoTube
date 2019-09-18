@@ -5,6 +5,7 @@ const ytdl = require('ytdl-core');
 const $ = require("jquery");
 const fs = require('fs-extra');
 const info = require('./info.json');
+const songArrayFile = require('./songArray.js');
 
 var YTAPIopions = {
   maxResults: 1,
@@ -108,9 +109,30 @@ nightmare
     });
 
   return namesArray 
-}, returnedArrayOfNames).then(function(result){
+}, returnedArrayOfNames)
 
-  returnedArrayOfNames = result;
+
+
+// FOR THE FUTURE
+
+// var namesArray = [];
+// var test = document.querySelectorAll( ".track-name-wrapper" );
+
+// for (i = 0; i < test.length; i++) {
+// 	namesArray.push(test[i].querySelectorAll(".tracklist-name")[0].textContent + " - " + test[i].querySelectorAll(".tracklist-row__artist-name-link")[0].textContent);
+// }
+
+// THEN copy(temp1)
+
+
+// nightmare
+
+
+.wait(1500)
+// .then(function(result){
+.then(function(){
+
+  returnedArrayOfNames = result6;
   getVideoLinks = true;
      
 })
@@ -149,17 +171,20 @@ nightmare
             console.log("# All songs with links can be found in music.txt file");
 
             for (var v = 0; v < YoutubeLinksContainer.length; v++){
-              console.log("# Reading video link:", YoutubeLinksContainer[v]);
               console.log("# Reading video title:", YoutubeTitleContainer[v]);
+              console.log("# Reading video link:", YoutubeLinksContainer[v]);
 
               fs.appendFile('music.txt', YoutubeLinksContainer[v] + " - " + YoutubeTitleContainer[v] + "\r\n", function (err) {
-                if (err) { console.log(err) } else {
-                }
+                if (err) { console.log(err) }
               });
 
               ytdl(YoutubeLinksContainer[v])
-              .on('error', (err) => console.log("# Skipping one video which is not available in your country or has age restrictions."))
-              .pipe(fs.createWriteStream("./downloaded/" + YoutubeTitleContainer[v] + ".mp4"));
+                .on('error', (err) => console.log("# Skipping one video " + YoutubeTitleContainer[v] + " which is not available in your country or has age restrictions."))
+                .pipe(fs.createWriteStream("./downloaded/" + YoutubeTitleContainer[v] + ".mp4"), function (err) {
+                  if (err) {
+                    console.log("whoops", err);
+                  }
+                });
             }
           }
       }});

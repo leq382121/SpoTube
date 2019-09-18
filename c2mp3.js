@@ -36,16 +36,21 @@ fs.readdirSync(videoFolder).forEach(file => {
 // convert mp4 to mp3 
 for (var i = 0; i < filesArray.length; i++){
 
-    if (String(filesArray[i]) === ".DS_Store") {
-        fs.unlink("./mp3/" + filesArray[i], function(err){console.log("DS_Store file is found and deleted.")});
-    } else {
+    // if (String(filesArray[i]) === ".DS_Store") {
+    //     fs.unlink("./mp3/" + filesArray[i], function(err){console.log("DS_Store file is found and deleted.")});
+    // } else {
         songName = filesArray[i].split(".mp4");
-        converter.convert(videoFolder+filesArray[i], mp3Folder+songName+".mp3", function(err) {
-            if (err) throw err;
-            convSongCounter++
-            console.log('# ' + convSongCounter + ' song converted.');
+        console.log(songName);
+
+        converter.convert(videoFolder+filesArray[i], mp3Folder+songName+".mp3", function(err, res) {
+            if (err) { 
+              console.log("ERROR:", err)
+            } else if (res) {
+              convSongCounter++
+              console.log('# ' + convSongCounter + ' song converted.');
+            }
         });
-    }
+    // }
 
 }
 
