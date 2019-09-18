@@ -1,4 +1,5 @@
 {
     "spotifyLink":"https://open.spotify.com/playlist/3MR0vv9efSQ0v7lNOtDiPV?si=EzSpErZQTA2u7sRi6-ghfQ",
+    "timesToScroll": 3,
     "wordsToSkip":["album", "Album", "cover", "acoustic", "VEVO"]
 }
