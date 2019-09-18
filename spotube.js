@@ -1,9 +1,8 @@
-const Nightmare = require('nightmare');
-const nightmare = Nightmare({ show: true })
+const puppeteer = require('puppeteer');
+const fs = require('fs-extra');
+const jquery_code_str = fs.readFileSync('jquery-3.2.1.min.js', 'utf8');
 const search = require('youtube-search');
 const ytdl = require('ytdl-core');
-const $ = require("jquery");
-const fs = require('fs-extra');
 const info = require('./info.json');
 const songArrayFile = require('./songArray.js');
 
@@ -15,25 +14,16 @@ var YTAPIopions = {
 /**
  * 
  * Some extra youtube API keys if you get stuck.
+ * 
+ * P.s. API keys are not supposed to be public, thanks for letting me know :)
  */
 
 //AIzaSyDOGmf4tOOBF0Ul7WgwA4edFWa_1OqKRnk
 //AIzaSyDa1geAukHGpQiOz2RJbtZ_V1ldmmvwLbw
 
-// const nick = info.fbnick;
-// const pass = info.fbpass;
 const spotifyLink = info.spotifyLink;
 const wordsToSkip = info.wordsToSkip;
 
-// const nick = process.argv[2];
-// const pass = process.argv[3];
-// const spotifyLink = process.argv[4];
-// const spotifyLink = 'https://open.spotify.com/user/1163383364/playlist/0QbpiafjotJ9i3CDiddPvy';
-
-var getVideoLinks = false;
-var dlVideos = false;
-
-var returnedArrayOfNames;
 var YoutubeLinksContainer = [];
 var YoutubeTitleContainer = [];
 
@@ -42,105 +32,53 @@ fs.mkdir("mp3");
 fs.unlink("music.txt");
 fs.createFile("music.txt");
 
+(async () => {
+  // Page Parameters
+  const browser = await puppeteer.launch(
+    {
+      args: ["--disable-notifications"],
+      headless: false
+    }
+  );
+  const page = await browser.newPage();
+  await page.setViewport({width: 1500, height: 900});
 
+  console.log('# Going to website..');
+  await page.goto(spotifyLink);
 
-// if (nick == null || pass == null ){
-//   console.log(" email or password was not defined.");
-//   console.log(" FYI: node script.js youremail yourpass")
-// } else {
-nightmare
-.goto(spotifyLink)
-// .click('#has-account')
-// .wait(3000)
-// .click('.btn-facebook')
-// .wait('#email')
-// .type('#email', nick)
-// .type('#pass', pass)
-// .click('#loginbutton')
-.wait('.tracklist-name')
-.inject('js', 'jquery-3.2.1.min.js')
-// .evaluate(function(){
-//     $('.dialog').remove();
-// })
-// Repeating scroll few times. Not the most beautiful solution :)
-.evaluate(function(){
-  $(document).scrollTop($(document).height());
-})
-.wait(1500)
-.evaluate(function(){
-  $(document).scrollTop($(document).height());
-})
-.wait(1500)
-.evaluate(function(){
-  $(document).scrollTop($(document).height());
-})
-.wait(1500)
-.evaluate(function(){
-  $(document).scrollTop($(document).height());
-})
-.wait(1500)
-.evaluate(function(){
-  $(document).scrollTop($(document).height());
-})
-.wait(1500)
-.evaluate(function(){
-  $(document).scrollTop($(document).height());
-})
-.wait(1500)
-.evaluate(function(){
-  $(document).scrollTop($(document).height());
-})
-.wait(1500)
-.evaluate(function(){
-  $(document).scrollTop($(document).height());
-})
-.wait(1500)
-.evaluate(function(){
-  $(document).scrollTop($(document).height());
-})
-.wait(1500)
-.evaluate(function(namesArray){ 
-  var namesArray = [];
+  //Injecting jQuery 
+  var jquery_ev_fn = await page.evaluate(function(code_str){
+    return code_str;
+  }, jquery_code_str);
+  await page.evaluate(jquery_ev_fn); 
 
+  // Scrolling down
+  for (i = 0; i <= 0; i++) {
+    await page.evaluate( function(){
+      $(".main-view-container__scroll-node").scrollTop($(".main-view-container__scroll-node")[0].scrollHeight);
+    });
+    await page.waitFor(1000)
+    console.log("Scrolling down, attempt:", i)
+  }
+
+  // Streaming array of songs
+  let returnedArrayOfNames = await page.evaluate(() => {
+    var namesArray = [];
     $( ".track-name-wrapper" ).each(function( i ) {
         namesArray.push( 
         $(this).children(".tracklist-name").text() + " - " 
         + $(this).find(".tracklist-row__artist-name-link").text());
     });
 
-  return namesArray 
-}, returnedArrayOfNames)
+    return namesArray
+  });
 
+  console.log('Songs scanned, starting to download.');
 
-
-// FOR THE FUTURE
-
-// var namesArray = [];
-// var test = document.querySelectorAll( ".track-name-wrapper" );
-
-// for (i = 0; i < test.length; i++) {
-// 	namesArray.push(test[i].querySelectorAll(".tracklist-name")[0].textContent + " - " + test[i].querySelectorAll(".tracklist-row__artist-name-link")[0].textContent);
-// }
-
-// THEN copy(temp1)
-
-
-// nightmare
-
-
-.wait(1500)
-// .then(function(result){
-.then(function(){
-
-  returnedArrayOfNames = result6;
-  getVideoLinks = true;
-     
-})
-.then(function() {
-  console.log(returnedArrayOfNames)
-  var playlistCounter = 0;
-    
-  if (getVideoLinks == true){
+  function downloadSongs() {
+    console.log(returnedArrayOfNames)
+    var playlistCounter = 0;
+      
     console.log("# Starting to use Youtube API")
     for (var i = 0; i < returnedArrayOfNames.length; i++){
       //using song names to get links
@@ -189,12 +127,20 @@ nightmare
           }
       }});
     }
+
+    return (YoutubeLinksContainer.length == (i - playlistCounter))
   }
-  return (YoutubeLinksContainer.length == (i - playlistCounter))
-}).then(function(){
+  await downloadSongs();
+
   console.log('Work is done. check downloaded folder. For conversion to mp3, use $ node c2mp3.js')
-  return nightmare.end(); 
-  });
-// }
+
+  await browser.close();
 
 
+  // console.log (someFunctionReturnedValue);
+
+
+  
+  // await page.waitFor(2000)
+  // await browser.close();
+})();

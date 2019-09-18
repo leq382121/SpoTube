@@ -22,7 +22,7 @@ $ npm install
 After that, open up info.json file, paste the link you wish to download and run the app to download videos. Additionaly you can specify the words which will filter out videos containing them in order to increase the accuracy of results and save data/time.
 
 ```sh
-$ node get.js
+$ node spotube.js
 ```
 
 After that, to convert videos to mp3, run:
