@@ -12,9 +12,7 @@ var YTAPIopions = {
 };
 
 /**
- * 
  * Some extra youtube API keys if you get stuck.
- * 
  * P.s. API keys are not supposed to be public, thanks for letting me know :)
  */
 
@@ -117,12 +115,12 @@ fs.createFile("music.txt");
               });
 
               ytdl(YoutubeLinksContainer[v])
-                .on('error', (err) => console.log("# Skipping one video " + YoutubeTitleContainer[v] + " which is not available in your country or has age restrictions."))
-                .pipe(fs.createWriteStream("./downloaded/" + YoutubeTitleContainer[v] + ".mp4"), function (err) {
-                  if (err) {
-                    console.log("whoops", err);
-                  }
-                });
+              .on('error', (err) => console.log("# Skipping one video " + YoutubeTitleContainer[v] + " which is not available in your country or has age restrictions."))
+              .pipe(fs.createWriteStream("./downloaded/" + YoutubeTitleContainer[v] + ".mp4"), function (err) {
+                if (err) {
+                  console.log("whoops", err);
+                }
+              });
             }
           }
       }});
@@ -130,17 +128,9 @@ fs.createFile("music.txt");
 
     return (YoutubeLinksContainer.length == (i - playlistCounter))
   }
+
   await downloadSongs();
 
   console.log('Work is done. check downloaded folder. For conversion to mp3, use $ node c2mp3.js')
-
   await browser.close();
-
-
-  // console.log (someFunctionReturnedValue);
-
-
-  
-  // await page.waitFor(2000)
-  // await browser.close();
 })();
