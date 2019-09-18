@@ -2,7 +2,7 @@
 
 Simply - a Spotify playlist downloader
 
-Deeper - An electron headles browser based spotify playlist data picker/cravler to feed youtube API in order to find best quality videos, download them and save to the computer, after that, convert everything to mp3 using ffmpeg binary.
+Deeper - An puppeteer headles browser based spotify playlist data picker/cravler to feed youtube API in order to find best quality videos, download them and save to the computer, after that, convert everything to mp3 using ffmpeg binary.
 
 # Requirements
 
