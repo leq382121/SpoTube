@@ -44,7 +44,7 @@ for (var i = 0; i < filesArray.length; i++){
 
         converter.convert(videoFolder+filesArray[i], mp3Folder+songName+".mp3", function(err, res) {
             if (err) { 
-              console.log("ERROR:", err)
+              console.log("ERROR:", err);
             } else if (res) {
               convSongCounter++
               console.log('# ' + convSongCounter + ' song converted.');

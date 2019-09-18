@@ -4,7 +4,6 @@ const jquery_code_str = fs.readFileSync('jquery-3.2.1.min.js', 'utf8');
 const search = require('youtube-search');
 const ytdl = require('ytdl-core');
 const info = require('./info.json');
-const songArrayFile = require('./songArray.js');
 
 var YTAPIopions = {
   maxResults: 1,
@@ -21,6 +20,7 @@ var YTAPIopions = {
 
 const spotifyLink = info.spotifyLink;
 const wordsToSkip = info.wordsToSkip;
+const timesToScroll = info.timesToScroll;
 
 var YoutubeLinksContainer = [];
 var YoutubeTitleContainer = [];
@@ -38,6 +38,7 @@ fs.createFile("music.txt");
       headless: false
     }
   );
+
   const page = await browser.newPage();
   await page.setViewport({width: 1500, height: 900});
 
@@ -51,12 +52,12 @@ fs.createFile("music.txt");
   await page.evaluate(jquery_ev_fn); 
 
   // Scrolling down
-  for (i = 0; i <= 0; i++) {
+  for (i = 0; i <= timesToScroll; i++) {
     await page.evaluate( function(){
       $(".main-view-container__scroll-node").scrollTop($(".main-view-container__scroll-node")[0].scrollHeight);
     });
     await page.waitFor(1000)
-    console.log("Scrolling down, attempt:", i)
+    console.log("Scrolling down, count:", i+1)
   }
 
   // Streaming array of songs
