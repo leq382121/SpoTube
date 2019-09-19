@@ -40,4 +40,4 @@ Sometimes mac users experience problems with conversion to mp3. It is due to inc
 $ chmod -R u+x .
 ```
 
-Also, sometimes downloaded videos takes 0 bytes of size. It's a corupted video file. You can either delete it manualy of run c2mp3 and script will remove them by itself.
+Also, sometimes downloaded videos takes 0 bytes of size. It's a corupted video file. You can either delete it manualy or run c2mp3 and script will remove them by itself.
