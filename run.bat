@@ -15,7 +15,7 @@ REM SET /P uname=Enter your facebook login:
 REM IF "%uname%"=="" GOTO Error
 REM SET /P upass=Enter your facebook pass:
 REM IF "%upass%"=="" GOTO Error
-REM node get.js %uname% %upass% %spotifylink%
-node get.js
+REM node spotube.js %uname% %upass% %spotifylink%
+node spotube.js
 node c2mp3.js
 exit
