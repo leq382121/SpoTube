@@ -47,7 +47,7 @@
     "bluebird": "^3.4.0",
     "chai": "^3.4.1",
     "chai-as-promised": "^5.3.0",
-    "express": "^4.13.3",
+    "express": "^4.17.3",
     "mocha": "^6.2.0",
     "mocha-generators": "^1.2.0",
     "multer": "1.1.0",
