@@ -21,6 +21,7 @@
   ],
   "description": "A high-level browser automation library combined with youtube playlist downloader using youtube and to mp3 converter",
   "dependencies": {
+    "cli-progress": "^3.12.0",
     "debug": "^2.2.0",
     "deep-defaults": "^1.0.3",
     "defaults": "^1.0.2",
@@ -38,7 +39,7 @@
     "split2": "^2.0.1",
     "video-converter": "git+https://github.com/leq382121/video-converter.git#master",
     "youtube-search": "^1.1.4",
-    "ytdl-core": "git+https://github.com/fent/node-ytdl-core.git#master"
+    "ytdl-core": "^4.11.4"
   },
   "devDependencies": {
     "async": "~2.1.4",
