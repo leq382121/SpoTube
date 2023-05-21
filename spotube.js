@@ -1,7 +1,7 @@
 const puppeteer = require('puppeteer');
 const fs = require('fs-extra');
 const async = require('async');
-const jquery_code_str = fs.readFileSync('jquery-3.2.1.min.js', 'utf8');
+const jqueryScriptFile = fs.readFileSync('jquery-3.2.1.min.js', 'utf8');
 const search = require('youtube-search');
 const ytdl = require('ytdl-core');
 const cliProgress = require('cli-progress');
@@ -14,102 +14,113 @@ const wordsToSkip = info.wordsToSkip;
 const timesToScroll = info.timesToScroll;
 const ytApiKey = info.youtubeApiKey;
 
-var YTAPIopions = {
+const YTAPIopions = {
   maxResults: 1,
   key: ytApiKey
 };
 
-var YoutubeLinksContainer = [];
-var YoutubeTitleContainer = [];
-
-if (!fs.existsSync("downloaded")) {
-  fs.mkdir("downloaded");
+const pupeteerProps = {
+  args: ["--disable-notifications"],
+  executablePath: '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome',
+  headless: false
 }
 
-if (!fs.existsSync("mp3")) {
-  fs.mkdir("mp3");
+let YoutubeLinksContainer = [];
+let YoutubeTitleContainer = [];
+let SpotfyTitlesList = []
+
+const establishFiles = () => {
+  if (!fs.existsSync("downloaded")) {
+    fs.mkdir("downloaded");
+  }
+  
+  if (!fs.existsSync("mp3")) {
+    fs.mkdir("mp3");
+  }
+  
+  if (fs.existsSync("music.txt")) {
+    fs.unlink("music.txt");
+  }
+  
+  fs.createFile("music.txt");
 }
 
-if (fs.existsSync("music.txt")) {
-  fs.unlink("music.txt");
-}
-
-fs.createFile("music.txt");
+establishFiles();
 
 (async () => {
-  // Page Parameters
-  const browser = await puppeteer.launch(
-    {
-      args: ["--disable-notifications"],
-      executablePath: '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome',
-      headless: false
-    }
-  );
-
-
+  const browser = await puppeteer.launch(pupeteerProps);
   const page = await browser.newPage();
-  await page.setViewport({width: 1500, height: 900});
 
-  console.log('# Going to website..');
+  await page.setViewport({width: 800, height: 800});
   await page.goto(spotifyLink);
-
   await page.waitFor(1000);
-  page.on('dialog', async dialog => {
-    //get alert message
-    console.log(dialog);
-    //accept alert
-    await dialog.decline();
- });
 
   //Injecting jQuery 
-  var jquery_ev_fn = await page.evaluate(function(code_str){
-    return code_str;
-  }, jquery_code_str);
+  const jqueryScript = await page.evaluate((scriptCode) => {
+    return scriptCode;
+  }, jqueryScriptFile);
 
-  await page.evaluate(jquery_ev_fn); 
+  await page.evaluate(jqueryScript); 
 
-  // Scrolling down
-  for (i = 0; i <= timesToScroll; i++) {
-    await page.evaluate( function(){
-      $(".os-viewport-native-scrollbars-invisible").scrollTop($(".os-viewport-native-scrollbars-invisible")[0].scrollHeight);
-    });
-    await page.waitFor(1000)
-    console.log("Scrolling down, count:", i+1)
+  for (currentScrollCount = 0; currentScrollCount <= timesToScroll; currentScrollCount++) {
+    const scrollAction = async () => {
+      await page.evaluate(({timesToScroll, currentScrollCount}) => {
+        const scollableViewportSelector = ".os-viewport-native-scrollbars-invisible"
+        const totalScrollHeight = $(scollableViewportSelector)[0].scrollHeight;
+  
+        $(scollableViewportSelector)
+          .scrollTop((totalScrollHeight / timesToScroll) * currentScrollCount);
+  
+      }, {timesToScroll, currentScrollCount});
+    }
+
+    const fetchTracksInfo = async () => {
+      return await page.evaluate(function () {
+        const trackWrapperSelector = 'div[data-testid="tracklist-row"]'
+        let namesArray = [];
+  
+        $(trackWrapperSelector).each(function (row) {
+          const trackWrapper = 'a[data-testid="internal-track-link"] div';
+          const titleCol = 'div[aria-colindex="2"] > div > span > a';
+    
+            namesArray.push( 
+            $(this).find(trackWrapper).text() + " - " 
+            + $(this).find(titleCol).text().replace(/([A-Z])/g, ' $1').trim());
+        });
+  
+        return namesArray
+      })
+    }
+
+    await scrollAction();
+    await page.waitFor(1000);
+
+    SpotfyTitlesList = [
+      ...SpotfyTitlesList,
+      ...(await fetchTracksInfo())
+    ]
+
+    console.log("Scrolling down, count:", currentScrollCount+1)
   }
 
-  // Streaming array of songs
-  // TODO: ant scrollo dabar 57 dainas max rodo tai kas 57 dainas tik skrolint ir tada current status pasigaut
-  let returnedArrayOfNames = await page.evaluate(() => {
-    var namesArray = [];
-
-    $( 'div[data-testid="tracklist-row"]' ).each(function( row ) {
-      const titleCol = 'div[aria-colindex="2"]';
-      const trackWrapper = 'a[data-testid="internal-track-link"]';
-
-        namesArray.push( 
-        $(this).find(trackWrapper + ' div').text() + " - " 
-        + $(this).find(titleCol + ' > div > span > a').text());
-    });
-
-    return namesArray
-  });
-
+  SpotfyTitlesList = [...new Set(SpotfyTitlesList)];
   console.log('Songs scanned, starting to download.');
-  
+
   const downloadSongs = new Promise((resolve, reject) => {
-    console.log(returnedArrayOfNames)
-    var playlistCounter = 0;
+    console.log(SpotfyTitlesList)
+    console.log('Songs count:', SpotfyTitlesList.length)
+    let playlistCounter = 0;
       
     console.log("# Starting to use Youtube API")
-    for (var i = 0; i < returnedArrayOfNames.length; i++){
+    for (var i = 0; i < SpotfyTitlesList.length; i++){
       //using song names to get links
-      search(returnedArrayOfNames[i], YTAPIopions, (error, res) => {
+      search(SpotfyTitlesList[i], YTAPIopions, (error, res) => {
         if (error) {
-          console.log('error ----------- nuplyso YT SEARCH API',)
+          console.log('error ----------- Youtube API reached limits. Wait or Create new project',)
         }
 
         if (typeof(res) === "undefined" || res[0].kind == "youtube#playlist"){
-          console.log("# Found a bad link for one song. Just skipping...");
+          console.log(`# Found a bad link for -- ${SpotfyTitlesList[i]}. Skipping...`);
           return playlistCounter++
         } else {
 
@@ -118,7 +129,6 @@ fs.createFile("music.txt");
 
           for(var badWordsCounter = 0; badWordsCounter < wordsToSkip.length; badWordsCounter++) {
             if (name.indexOf(wordsToSkip[badWordsCounter]) !== -1){
-              //aka If index of bad word found
               console.log("Skipping ", res[0].title ,"Word - ", wordsToSkip[badWordsCounter]);
               return playlistCounter++
             }
@@ -178,13 +188,13 @@ fs.createFile("music.txt");
                   .pipe(fs.createWriteStream(filename));
         
               }.bind(this),
-              function (err) {
-                  if (err) {
-                      console.error(err);
-                      reject(err);
-                  } else {
-                      resolve();
-                  }
+              (err) => {
+                if (err) {
+                    console.error(err);
+                    reject(err);
+                } else {
+                    resolve();
+                }
               }
           );
         });

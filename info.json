@@ -1,6 +1,6 @@
 {
     "spotifyLink":"https://open.spotify.com/playlist/1c9ceyaPxfgk8COJiOIGBa?si=0a6461cd6b634e59",
-    "timesToScroll": 3,
+    "timesToScroll": 2,
     "wordsToSkip":["album", "Album", "cover", "acoustic", "VEVO"],
     "youtubeApiKey": ""
 }
