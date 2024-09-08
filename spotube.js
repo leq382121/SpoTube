@@ -171,8 +171,6 @@ establishFiles();
 
   downloadSongs
     .then(async () => {
-      YoutubeItems.length = 3
-
       async function downloadVideo({link, name}) {
         try {
           const videoTitle = name;
