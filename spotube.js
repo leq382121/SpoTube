@@ -1,9 +1,9 @@
 const puppeteer = require('puppeteer');
 const fs = require('fs-extra');
-const async = require('async');
 const jqueryScriptFile = fs.readFileSync('jquery-3.2.1.min.js', 'utf8');
 const search = require('youtube-search');
-const ytdl = require('ytdl-core');
+// const ytdl = require('ytdl-core');
+const ytdl = require("@distube/ytdl-core");
 const cliProgress = require('cli-progress');
 
 const bar1 = new cliProgress.SingleBar({}, cliProgress.Presets.shades_classic);
@@ -19,14 +19,20 @@ const YTAPIopions = {
   key: ytApiKey
 };
 
+if (ytApiKey === "") {
+  console.log("Youtube API is not defined. Please add it to info.json")
+}
+
 const pupeteerProps = {
   args: ["--disable-notifications"],
   executablePath: '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome',
   headless: false
 }
 
-let YoutubeLinksContainer = [];
-let YoutubeTitleContainer = [];
+// let YoutubeLinksContainer = [];
+// let YoutubeTitleContainer = [];
+
+let YoutubeItems = [] //{title: String, link: String}
 let SpotfyTitlesList = []
 
 const establishFiles = () => {
@@ -65,8 +71,8 @@ establishFiles();
   for (currentScrollCount = 0; currentScrollCount <= timesToScroll; currentScrollCount++) {
     const scrollAction = async () => {
       await page.evaluate(({timesToScroll, currentScrollCount}) => {
-        const scollableViewportSelector = ".os-viewport-native-scrollbars-invisible"
-        const totalScrollHeight = $(scollableViewportSelector)[0].scrollHeight;
+        const scollableViewportSelector = 'div[data-overlayscrollbars-viewport="scrollbarHidden overflowXHidden overflowYScroll"]'
+        const totalScrollHeight = $('.main-view-container__scroll-node-child')[0].scrollHeight;
   
         $(scollableViewportSelector)
           .scrollTop((totalScrollHeight / timesToScroll) * currentScrollCount);
@@ -80,12 +86,12 @@ establishFiles();
         let namesArray = [];
   
         $(trackWrapperSelector).each(function (row) {
-          const trackWrapper = 'a[data-testid="internal-track-link"] div';
-          const titleCol = 'div[aria-colindex="2"] > div > span > a';
+          const trackName = 'a[data-testid="internal-track-link"] div';
+          const trackArtist = 'a[data-testid="internal-track-link"]';
     
             namesArray.push( 
-            $(this).find(trackWrapper).text() + " - " 
-            + $(this).find(titleCol).text().replace(/([A-Z])/g, ' $1').trim());
+            $(this).find(trackName).text() + " - " 
+            + $(this).find(trackArtist).parent().children().last().text().replace(/([A-Z])/g, ' $1').trim());
         });
   
         return namesArray
@@ -104,6 +110,7 @@ establishFiles();
   }
 
   SpotfyTitlesList = [...new Set(SpotfyTitlesList)];
+  console.log(SpotfyTitlesList)
   console.log('Songs scanned, starting to download.');
 
   const downloadSongs = new Promise((resolve, reject) => {
@@ -134,19 +141,22 @@ establishFiles();
             }
           }
 
-          YoutubeLinksContainer.push(link);
-          YoutubeTitleContainer.push(name.replace(/\W/g,' '));
+          YoutubeItems.push({
+            link: link,
+            name: name.replace(/\W/g,' ')
+          })
+  
 
-          //getting length of links array and fulfilling the upcoming if statement to download videos
-          if (YoutubeLinksContainer.length == (i - playlistCounter)) {
+          // getting length of links array and fulfilling the upcoming if statement to download videos
+          if (YoutubeItems.length == (i - playlistCounter)) {
             console.log("# Youtube links are stored into memory");
             console.log("# All songs with links can be found in music.txt file");
 
-            for (var v = 0; v < YoutubeLinksContainer.length; v++){
-              console.log("# Reading video title:", YoutubeTitleContainer[v]);
-              console.log("# Reading video link:", YoutubeLinksContainer[v]);
+            for (var v = 0; v < YoutubeItems.length; v++){
+              console.log("# Reading video title:", YoutubeItems[v].name);
+              console.log("# Reading video link:", YoutubeItems[v].link);
 
-              fs.appendFile('music.txt', YoutubeLinksContainer[v] + " - " + YoutubeTitleContainer[v] + "\r\n", function (err) {
+              fs.appendFile('music.txt', YoutubeItems[v].name + " - " + YoutubeItems[v].link + "\r\n", function (err) {
                 if (err) { console.log(err) }
               });         
               
@@ -156,48 +166,56 @@ establishFiles();
       }});
     }
 
-    return YoutubeLinksContainer.length == (i - playlistCounter)
+    return YoutubeItems.length == (i - playlistCounter)
   })
 
   downloadSongs
     .then(async () => {
-        return new Promise((resolve, reject) => {
-          async.eachLimit(YoutubeLinksContainer, 1,
-              function (url, callback) {
-                const currentIndex = YoutubeLinksContainer.findIndex((item) => item === url);
-                const filename = `./downloaded/${YoutubeTitleContainer[currentIndex]}.mp4`
-                
-                console.log(`Downloading: ${YoutubeTitleContainer[currentIndex]} - ${url}`);
-        
-                let downloadStarted = false;
-                ytdl(url, {
-                    quality: 'highestaudio',
-                  })
-                  .on('progress', (_, totalDownloaded, total) => {
-                    if (!downloadStarted) {
-                      bar1.start(total, 0);
-                      downloadStarted = true;
-                    }
-        
-                    bar1.update(totalDownloaded);
-                  })
-                  .on('end', () => {
-                    bar1.stop();
-                    callback();
-                  })
-                  .pipe(fs.createWriteStream(filename));
-        
-              }.bind(this),
-              (err) => {
-                if (err) {
-                    console.error(err);
-                    reject(err);
-                } else {
-                    resolve();
-                }
+      YoutubeItems.length = 3
+
+      async function downloadVideo({link, name}) {
+        try {
+          const videoTitle = name;
+          const sanitizedTitle = videoTitle.replace(/[<>:"/\\|?*]+/g, '');
+          const filePath = `./downloaded/${sanitizedTitle}.mp4`
+          
+          console.log(`Downloading: ${sanitizedTitle}`);
+      
+          return new Promise((resolve, reject) => {
+            const videoStream = ytdl(link, { quality: 'highestaudio' });
+            const writeStream = fs.createWriteStream(filePath);
+
+            writeStream.on('progress', (_, totalDownloaded, total) => {
+              if (!bar1.isActive()) {
+                bar1.start(total, 0);
               }
-          );
-        });
+  
+              bar1.update(totalDownloaded);
+            })
+      
+            videoStream.pipe(writeStream);
+      
+            writeStream.on('finish', () => {
+              bar1.stop();
+              console.log(`Download completed: ${sanitizedTitle}`);
+              resolve();
+            });
+      
+            videoStream.on('error', reject);
+            writeStream.on('error', reject);
+          });
+        } catch (error) {
+          console.error(`Error downloading video from ${link}: ${error.message}`);
+        }
+      }
+
+      async function downloadVideos(urls) {
+        for (const item of urls) {
+          await downloadVideo(item);
+        }
+      }
+      
+      downloadVideos(YoutubeItems)
     })
 
   console.log('Work is done. check downloaded folder. For conversion to mp3, use $ node c2mp3.js')
