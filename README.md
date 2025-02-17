@@ -1,8 +1,8 @@
 # SpoTube
 
-Simply - a Spotify playlist downloader
+TL;DR - a Spotify playlist downloader
 
-Deeper - An puppeteer headles browser based spotify playlist data picker/cravler to feed youtube API in order to find best quality videos, download them and save to the computer, after that, convert everything to mp3 using ffmpeg binary.
+An puppeteer headles browser based spotify playlist data picker/cravler to feed youtube API in order to find best quality videos, download them and save to the computer, after that, convert everything to mp3 using ffmpeg binary.
 
 # Requirements
 
